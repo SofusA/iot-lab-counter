@@ -1,0 +1,12 @@
+FROM nodered/node-red
+
+## Install python3-dev
+USER root
+RUN apk add --no-cache --virtual devtools build-base linux-headers udev python python3 python3-dev 
+
+## Python Packages
+RUN python3 -m pip install pandas
+#RUN python3 -m pip install matplotlib
+
+## Node-red packages
+RUN npm install node-red-node-sqlite node-red-dashboard node-red-contrib-queue-gate
