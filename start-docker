@@ -1,2 +1,2 @@
 #! /bin/bash
-sudo docker run -it -p 80:1880 -p 443:1880 -v `pwd`/server:/data --name node-red sofusa/eupry-node-red
+sudo docker run -it -p 80:1880 -p 443:1880 -v `pwd`/server:/data -e TZ=Europe/Copenhagen --name node-red sofusa/eupry-node-red
