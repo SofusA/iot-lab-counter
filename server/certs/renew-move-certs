@@ -1,5 +1,6 @@
 #!/bin/bash
 sudo docker stop node-red
+sleep 5
 sudo certbot renew
 sudo cp /etc/letsencrypt/live/counter.iot-lab.dk/privkey.pem ~/iot-lab-counter/server/certs
 sudo cp /etc/letsencrypt/live/counter.iot-lab.dk/fullchain.pem ~/iot-lab-counter/server/certs
