@@ -342,8 +342,8 @@
                 "vt": "str"
             }
         ],
-        "repeat": "",
-        "crontab": "00 04 * * *",
+        "repeat": "10800",
+        "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
