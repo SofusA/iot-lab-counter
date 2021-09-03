@@ -127,11 +127,11 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1210,
+        "x": 1070,
         "y": 200,
         "wires": []
     },
@@ -174,8 +174,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1730,
-        "y": 540,
+        "x": 1790,
+        "y": 440,
         "wires": []
     },
     {
@@ -200,49 +200,10 @@
         "payload": "",
         "payloadType": "date",
         "x": 200,
-        "y": 540,
+        "y": 460,
         "wires": [
             [
-                "9f2256e3.370278"
-            ]
-        ]
-    },
-    {
-        "id": "9f2256e3.370278",
-        "type": "exec",
-        "z": "13ceb173.1a2867",
-        "command": "ls -U | head -1",
-        "addpay": "",
-        "append": "",
-        "useSpawn": "false",
-        "timer": "",
-        "oldrc": false,
-        "name": "",
-        "x": 400,
-        "y": 540,
-        "wires": [
-            [
-                "5d58ebd1.53167c"
-            ],
-            [],
-            []
-        ]
-    },
-    {
-        "id": "3e64f7fb.4ec31",
-        "type": "file",
-        "z": "13ceb173.1a2867",
-        "name": "",
-        "filename": "",
-        "appendNewline": true,
-        "createDir": false,
-        "overwriteFile": "true",
-        "encoding": "none",
-        "x": 1050,
-        "y": 200,
-        "wires": [
-            [
-                "1d53ac3b.9077bc"
+                "a9ee9523693a3f5a"
             ]
         ]
     },
@@ -251,7 +212,7 @@
         "type": "function",
         "z": "13ceb173.1a2867",
         "name": "set filename and body",
-        "func": "msg.filename = new Date(msg.req.body.event_time).getTime().toString();\nmsg.payload = msg.req.body;\n\nreturn msg;",
+        "func": "// msg.filename = new Date(msg.req.body.event_time).getTime().toString();\n// msg.payload = msg.req.body;\n\nconst time = new Date(msg.req.body.event_time).getTime().toString();\n\nlet offline = global.get('offline') || {};\noffline[time] = msg.req.body;\nglobal.set('offline', offline);\n\nmsg.payload = \"offline\";\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -261,44 +222,7 @@
         "y": 200,
         "wires": [
             [
-                "3e64f7fb.4ec31"
-            ]
-        ]
-    },
-    {
-        "id": "7ed84900.5679c",
-        "type": "file in",
-        "z": "13ceb173.1a2867",
-        "name": "",
-        "filename": "",
-        "format": "utf8",
-        "chunk": false,
-        "sendError": false,
-        "encoding": "none",
-        "x": 770,
-        "y": 540,
-        "wires": [
-            [
-                "baac1bbb.deb5f"
-            ]
-        ]
-    },
-    {
-        "id": "5d58ebd1.53167c",
-        "type": "function",
-        "z": "13ceb173.1a2867",
-        "name": "set filename",
-        "func": "msg.filename = msg.payload;\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 590,
-        "y": 540,
-        "wires": [
-            [
-                "7ed84900.5679c"
+                "1d53ac3b.9077bc"
             ]
         ]
     },
@@ -315,28 +239,11 @@
         "persist": false,
         "proxy": "",
         "authType": "",
-        "x": 1130,
-        "y": 500,
+        "x": 890,
+        "y": 460,
         "wires": [
             [
-                "bc0ce932.f4fb5",
-                "7d3a78cc.c3ef2"
-            ]
-        ]
-    },
-    {
-        "id": "baac1bbb.deb5f",
-        "type": "json",
-        "z": "13ceb173.1a2867",
-        "name": "",
-        "property": "payload",
-        "action": "",
-        "pretty": false,
-        "x": 930,
-        "y": 540,
-        "wires": [
-            [
-                "74b4ed37.895a54"
+                "bc0ce932.f4fb5"
             ]
         ]
     },
@@ -352,65 +259,16 @@
                 "t": "eq",
                 "v": "200",
                 "vt": "num"
-            },
-            {
-                "t": "else"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 2,
-        "x": 1290,
-        "y": 580,
-        "wires": [
-            [],
-            [
-                "d40a55c7.b1677"
-            ]
-        ]
-    },
-    {
-        "id": "d40a55c7.b1677",
-        "type": "change",
-        "z": "13ceb173.1a2867",
-        "name": "Error",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "Error",
-                "tot": "str"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1410,
-        "y": 680,
-        "wires": [
-            [
-                "1aeb5a25.cca156"
-            ]
-        ]
-    },
-    {
-        "id": "7d3a78cc.c3ef2",
-        "type": "file",
-        "z": "13ceb173.1a2867",
-        "name": "",
-        "filename": "",
-        "appendNewline": true,
-        "createDir": false,
-        "overwriteFile": "delete",
-        "encoding": "none",
-        "x": 1350,
+        "outputs": 1,
+        "x": 1090,
         "y": 460,
         "wires": [
             [
-                "5dea30f9.9496f8"
+                "b3cd82c17c0a1883"
             ]
         ]
     },
@@ -434,7 +292,7 @@
         "to": "",
         "reg": false,
         "x": 1520,
-        "y": 460,
+        "y": 440,
         "wires": [
             [
                 "1aeb5a25.cca156",
@@ -450,8 +308,8 @@
         "links": [
             "e7cb3b3.fc2bcc8"
         ],
-        "x": 1745,
-        "y": 440,
+        "x": 1735,
+        "y": 380,
         "wires": []
     },
     {
@@ -462,11 +320,11 @@
         "links": [
             "d4719cdd.bf406"
         ],
-        "x": 205,
-        "y": 600,
+        "x": 255,
+        "y": 500,
         "wires": [
             [
-                "9f2256e3.370278"
+                "a9ee9523693a3f5a"
             ]
         ]
     },
@@ -484,8 +342,8 @@
                 "vt": "str"
             }
         ],
-        "repeat": "",
-        "crontab": "00 04 * * *",
+        "repeat": "10800",
+        "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
@@ -583,5 +441,66 @@
         "x": 690,
         "y": 260,
         "wires": []
+    },
+    {
+        "id": "0e3aec4c1426d756",
+        "type": "switch",
+        "z": "13ceb173.1a2867",
+        "name": "ignore if empty",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 610,
+        "y": 460,
+        "wires": [
+            [
+                "74b4ed37.895a54"
+            ]
+        ]
+    },
+    {
+        "id": "a9ee9523693a3f5a",
+        "type": "function",
+        "z": "13ceb173.1a2867",
+        "name": "grab first",
+        "func": "let offline = global.get('offline') || {};\n\nif (Object.keys(offline).length !== 0) {\n    msg.payload = offline[Object.keys(offline)[0]];\n    msg.topic = Object.keys(offline)[0]\n} else {\n    msg.payload = null;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 460,
+        "wires": [
+            [
+                "0e3aec4c1426d756"
+            ]
+        ]
+    },
+    {
+        "id": "b3cd82c17c0a1883",
+        "type": "function",
+        "z": "13ceb173.1a2867",
+        "name": "delete",
+        "func": "let offline = global.get('offline') || {};\n\ndelete offline[msg.topic]\n\nglobal.set('offline', offline);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1270,
+        "y": 460,
+        "wires": [
+            [
+                "5dea30f9.9496f8"
+            ]
+        ]
     }
 ]
