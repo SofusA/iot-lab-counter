@@ -14,12 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 let sendOneCount = () => {
+    const time = new Date();
     const count = {
         "channel_id": "f590d746-0a72-43e4-beb7-6fa04f978121",
-        "channel_name": "skylab;front;revolving",
+        "channel_name": "test;location;door",
         "event_name": "Crossed line",
         "event_origin": "Pedestrian",
-        "event_time": "2021-09-15T09:55:03.0992892+02:00",
+        "event_time": time.getTime(),
         "event_type": "TripwireCrossed",
         "object_id": 677,
         "rule_id": "974c8bc3-c3be-4698-83ae-720c718df09a",
@@ -31,10 +32,16 @@ let sendOneCount = () => {
     else {
         count["rule_name"] = "Enter";
     }
+    if (Math.random() < 0.5) {
+        count["channel_name"] = "test;loc;door1";
+    }
+    else {
+        count["channel_name"] = "test;loc;door2";
+    }
     return count;
 };
 let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
-    axios_1.default.post('http://127.0.0.1:5500', sendOneCount())
+    axios_1.default.post('http://127.0.0.1:3000/count', sendOneCount())
         .then(function (response) {
         console.log("Success");
     })
@@ -42,5 +49,22 @@ let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Error");
     });
 });
-setInterval(sendOne, 5000);
+let sendHeatbeat = () => __awaiter(void 0, void 0, void 0, function* () {
+    let sensor;
+    if (Math.random() < 0.5) {
+        sensor = "test;loc;door1";
+    }
+    else {
+        sensor = "test;loc;door2";
+    }
+    axios_1.default.post('http://127.0.0.1:3000/heartbeat', { door: sensor })
+        .then(function (response) {
+        console.log("Success");
+    })
+        .catch(function (error) {
+        console.log("Error");
+    });
+});
+setInterval(sendOne, 20000);
+setInterval(sendHeatbeat, 60000);
 //# sourceMappingURL=app.js.map
