@@ -9,6 +9,8 @@ let db = new sqlite3_1.default.Database('database.db');
 let parseCount = (input) => {
     const msgOut = Object.assign(Object.assign({ "door": "\'" + input['channel_name'] + "\'", "time": new Date(input['event_time']).getTime() }, (input['rule_name'] == "Enter" && { "direction_in": 1 })), (input['rule_name'] == "Exit" && { "direction_out": 1 }));
     sendToDatabase(msgOut);
+    msgOut['location'] = input['channel_name'].split(';')[0];
+    console.log('New measurement: ' + input['channel_name'] + ' → ' + input['rule_name']);
     return msgOut;
 };
 exports.parseCount = parseCount;

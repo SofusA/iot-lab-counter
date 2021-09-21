@@ -17,7 +17,7 @@ let errorLog = {};
 const sqlite3_1 = __importDefault(require("sqlite3"));
 let db = new sqlite3_1.default.Database('database.db');
 let updateHeartbeat = (input) => {
-    const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'] + '")';
+    const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")';
     db.run(query);
 };
 exports.updateHeartbeat = updateHeartbeat;
@@ -31,7 +31,7 @@ let updateError = (input) => {
 };
 exports.updateError = updateError;
 let updateSensor = (input) => {
-    const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'] + '")';
+    const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")';
     db.run(query);
 };
 exports.updateSensor = updateSensor;

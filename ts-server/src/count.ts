@@ -10,6 +10,9 @@ let parseCount = (input: string) => {
     };
 
     sendToDatabase(msgOut);
+    msgOut['location'] = input['channel_name'].split(';')[0]
+
+    console.log('New measurement: ' + input['channel_name'] + ' → ' + input['rule_name'])
     return msgOut;
 }
 
@@ -24,5 +27,5 @@ let sample = () => {
     });
 }
 
-export { parseCount as parseCount, sample as sample }
+export { parseCount, sample }
 
