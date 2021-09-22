@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/app.js",
-    "start:nodemon": "./node_modules/nodemon/bin/nodemon.js"
+    "start:nodemon": "./node_modules/nodemon/bin/nodemon.js",
+    "start:production": "NODE_ENV=production node dist/app.js"
   },
   "author": "Sofus Addington",
   "license": "ISC",

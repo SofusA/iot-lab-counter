@@ -3,10 +3,30 @@ import express from 'express';
 import helmet from 'helmet';
 import path from 'path'
 
-const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const port = process.env.PORT || 3000;
+// Https stuff
+import fs from 'fs'
+import https from 'https'
+import http from 'http'
+
+var credentials = {
+  key: fs.readFileSync(__dirname + '/certs/privkey.pem', 'utf8'),
+  cert: fs.readFileSync(__dirname + '/certs/fullchain.pem', 'utf8')
+};
+var app = express();
+var httpsServer = https.createServer(credentials, app);
+var httpServer = http.createServer(app);
+
+httpsServer.listen(8443);
+httpServer.listen(8442);
+
+import { Server, Socket } from "socket.io";
+const io = new Server(httpsServer)
+
+
+// const app = express();
+// const http = require('http').Server(app);
+// const io = require('socket.io')(http);
+// const port = process.env.PORT || 3000;
 
 app.use(helmet());
 app.use(express.json());
@@ -20,9 +40,9 @@ import { updateError, updateHeartbeat, updateSensor, statusPage } from './mainte
 import { init_db } from './init_db';
 import { frontPage } from './front-end';
 
-http.listen(port, () => {
-  console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
+// http.listen(port, () => {
+//   console.log(`Socket.IO server running at http://localhost:${port}/`);
+// });
 
 // serve Skylab
 app.get('/skylab', (req, res) => {
@@ -39,8 +59,15 @@ app.get('/test', (req, res) => {
   res.sendFile(__dirname + '/client/test.html');
 });
 
+app.get('/init', (req, res) => {
+  init_db()
+  res.send({
+    response: 'OK'
+  });
+});
+
 // subscribe new connections
-io.on('connection', (socket) => {
+io.on('connection', (socket: Socket) => {
   socket.on('join', (r: string) => {
     const site = r.split('/')[0]
     const location = r.split('/')[1] || site
@@ -51,7 +78,6 @@ io.on('connection', (socket) => {
 
     // update status connections
     if (location === 'status') {
-      // console.log('New status connection')
       statusPage().then((result) => {
         socket.emit('update', result)
       });

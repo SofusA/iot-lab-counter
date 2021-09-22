@@ -7,10 +7,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const path_1 = __importDefault(require("path"));
-const app = (0, express_1.default)();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const port = process.env.PORT || 3000;
+// Https stuff
+const fs_1 = __importDefault(require("fs"));
+const https_1 = __importDefault(require("https"));
+const http_1 = __importDefault(require("http"));
+var credentials = {
+    key: fs_1.default.readFileSync(__dirname + '/certs/privkey.pem', 'utf8'),
+    cert: fs_1.default.readFileSync(__dirname + '/certs/fullchain.pem', 'utf8')
+};
+var app = (0, express_1.default)();
+var httpsServer = https_1.default.createServer(credentials, app);
+var httpServer = http_1.default.createServer(app);
+httpsServer.listen(8443);
+httpServer.listen(8442);
+const socket_io_1 = require("socket.io");
+const io = new socket_io_1.Server(httpsServer);
+// const app = express();
+// const http = require('http').Server(app);
+// const io = require('socket.io')(http);
+// const port = process.env.PORT || 3000;
 app.use((0, helmet_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -18,10 +33,11 @@ app.use('/static', express_1.default.static(path_1.default.join(__dirname, 'publ
 // Import api handlers
 const count_1 = require("./count");
 const maintenance_1 = require("./maintenance");
+const init_db_1 = require("./init_db");
 const front_end_1 = require("./front-end");
-http.listen(port, () => {
-    console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
+// http.listen(port, () => {
+//   console.log(`Socket.IO server running at http://localhost:${port}/`);
+// });
 // serve Skylab
 app.get('/skylab', (req, res) => {
     res.sendFile(__dirname + '/client/skylab.html');
@@ -34,6 +50,12 @@ app.get('/itu', (req, res) => {
 app.get('/test', (req, res) => {
     res.sendFile(__dirname + '/client/test.html');
 });
+app.get('/init', (req, res) => {
+    (0, init_db_1.init_db)();
+    res.send({
+        response: 'OK'
+    });
+});
 // subscribe new connections
 io.on('connection', (socket) => {
     socket.on('join', (r) => {
@@ -43,7 +65,6 @@ io.on('connection', (socket) => {
         socket.join(r);
         // update status connections
         if (location === 'status') {
-            // console.log('New status connection')
             (0, maintenance_1.statusPage)().then((result) => {
                 socket.emit('update', result);
             });

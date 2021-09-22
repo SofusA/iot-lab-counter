@@ -26,22 +26,22 @@ let sendOneCount = () => {
         "rule_id": "974c8bc3-c3be-4698-83ae-720c718df09a",
         "rule_name": "null"
     };
-    if (Math.random() < 0) {
+    if (Math.random() < 0.5) {
         count["rule_name"] = "Exit";
     }
     else {
         count["rule_name"] = "Enter";
     }
     if (Math.random() < 0.5) {
-        count["channel_name"] = "test;loc;door1";
+        count["channel_name"] = "novonordisk;loc;door1";
     }
     else {
-        count["channel_name"] = "test;loc;door2";
+        count["channel_name"] = "novonordisk;loc;door2";
     }
     return count;
 };
 let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
-    axios_1.default.post('http://127.0.0.1:3000/count', sendOneCount())
+    axios_1.default.post('http://127.0.0.1:8442/count', sendOneCount())
         .then(function (response) {
         console.log("Success");
     })
@@ -52,12 +52,12 @@ let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
 let sendHeatbeat = () => __awaiter(void 0, void 0, void 0, function* () {
     let sensor;
     if (Math.random() < 0.5) {
-        sensor = "test;loc;door1";
+        sensor = "novonordisk;loc;door1";
     }
     else {
-        sensor = "test;loc;door2";
+        sensor = "novonordisk;loc;door2";
     }
-    axios_1.default.post('http://127.0.0.1:3000/heartbeat', { door: sensor })
+    axios_1.default.post('http://127.0.0.1:8442/heartbeat', { door: sensor })
         .then(function (response) {
         console.log("Success");
     })
@@ -65,6 +65,6 @@ let sendHeatbeat = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Error");
     });
 });
-setInterval(sendOne, 5000);
-setInterval(sendHeatbeat, 60000);
+setInterval(sendOne, 10000);
+setInterval(sendHeatbeat, 30000);
 //# sourceMappingURL=app.js.map

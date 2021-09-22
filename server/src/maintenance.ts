@@ -7,7 +7,6 @@ let updateHeartbeat = (input: string) => {
     // const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
     const query = 'REPLACE INTO sensorList (sensor, heartbeat, lastMsg) VALUES ("' + input['door'].replace(/['"]+/g, '') + '", ' + new Date().getTime() + ', (SELECT lastMsg FROM sensorList WHERE sensor = "'+ input['door'].replace(/['"]+/g, '') +'"))'
     console.log('New heartbeat: ' + input['door'])
-    // console.log(query)
     db.run(query)
 }
 
@@ -23,7 +22,6 @@ let updateError = (input: object) => {
 let updateSensor = (input: object) => {
     // const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
     const query = 'REPLACE INTO sensorList (sensor, lastMsg, heartbeat) VALUES ("' + input['door'].replace(/['"]+/g, '') + '", ' + new Date().getTime() + ', (SELECT heartbeat FROM sensorList WHERE sensor = "'+ input['door'].replace(/['"]+/g, '') +'"))'
-    // console.log(query)
     db.run(query)
 }
 
