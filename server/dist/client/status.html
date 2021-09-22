@@ -45,7 +45,7 @@
 
     // When update message → Update the table and store msg
     socket.on('update', function (msg) {
-      // console.log(msg)
+      console.log(msg)
       updateTable(msg) // update
       msgStore = msg // store
     })
@@ -82,7 +82,7 @@
         tb.concat('</tr>')
       }
       cameraTable.innerHTML = tb
-      console.log('Table Updated')
+      // console.log('Table Updated')
     }
 
     function numParse(x) {

@@ -148,7 +148,7 @@
       const d = new Date
       msg['year'] = d.getFullYear()
       for (const [key, value] of Object.entries(msg)) {
-        page[key].innerHTML = value;
+        if (page[key]) {page[key].innerHTML = value}
       }
       
     }

@@ -1,5 +1,6 @@
 // Set up server
 import express from 'express';
+import helmet from 'helmet';
 import path from 'path'
 
 const app = express();
@@ -7,6 +8,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'public')))
@@ -27,13 +29,23 @@ app.get('/skylab', (req, res) => {
   res.sendFile(__dirname + '/client/skylab.html');
 });
 
+// serve ITU
+app.get('/itu', (req, res) => {
+  res.sendFile(__dirname + '/client/itu.html');
+});
+
+// serve test
+app.get('/test', (req, res) => {
+  res.sendFile(__dirname + '/client/test.html');
+});
+
 // subscribe new connections
 io.on('connection', (socket) => {
   socket.on('join', (r: string) => {
     const site = r.split('/')[0]
     const location = r.split('/')[1] || site
 
-    console.log('New ' + site + ' : ' + location)
+    // console.log('New ' + site + ' : ' + location)
 
     socket.join(r);
 
@@ -47,6 +59,7 @@ io.on('connection', (socket) => {
 
     // update front-end connections
     if (site === 'front') {
+      // console.log('New connection update for: ' + location)
       frontPage(location).then((result) => {
         socket.emit('update', result)
       });
@@ -62,20 +75,24 @@ app.post('/count', (req, res) => {
   // Update sensorlist
   updateSensor(count)
 
-  // Update rooms
+  
   let rooms = [...io.of("/").adapter.rooms.keys()];
   for (const room of rooms) {
-    if (room.includes('front')) {
+
+    // update front-ends
+    if (room.includes('front') && room.includes(count['location'])) { // Push to all 'front' rooms where this count is related to.
       frontPage(count['location']).then((result) => {
         io.to('front/' + count['location']).emit('update', result);
       });
     }
-  }
 
-  // update status connections
-  statusPage().then((result) => {
-    io.to('status').emit('update', result)
-  });
+    // update status connections
+    if (room.includes('status')) { // Push to all 'status'
+      statusPage().then((result) => {
+        io.to('tool/status').emit('update', result)
+      });
+    }
+  }
 
   // respond
   res.send({

@@ -23,9 +23,7 @@ const getFirstVisitor = (location) => {
         getQuery(query, 'time').then(r => resolve(r));
     });
 };
-console.log('Reset time inititated');
-let resetTime = new Date();
-resetTime.setHours(3, 0, 0, 0);
+let resetTimeObject = {};
 function sameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
         d1.getMonth() === d2.getMonth() &&
@@ -35,16 +33,27 @@ const getCurrentVisitors = (location) => {
     return new Promise((resolve, reject) => {
         // Handle the reset timer
         const now = new Date();
-        // Hvis ikke blevet reset i dag og klokken er over 03, reset til i dag klokken 03
+        let resetTime = new Date();
+        // If resetTimer exists. Define it
+        if (resetTimeObject[location]) {
+            resetTime = resetTimeObject[location];
+        }
+        else { // Otherwise set to today at 03. Only run once every server reset
+            resetTime.setHours(3, 0, 0, 0);
+            resetTimeObject[location] = resetTime;
+        }
+        // If resetTimer has not been reset today, and the time is more than 03, reset to today at 03 and store the timer
         if (!sameDay(now, resetTime) && now.getHours() > 3) {
             resetTime = now;
             resetTime.setHours(3, 0, 0, 0);
-            console.log('resetTime reset to: ' + resetTime);
+            resetTimeObject[location] = resetTime;
+            console.log('New day: resetTimer is reset for: ' + location);
         }
         const query = 'SELECT SUM(direction_in)-SUM(direction_out) from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + resetTime.getTime();
         getQuery(query, 'SUM(direction_in)-SUM(direction_out)').then(r => {
             if (r < 0) {
-                resetTime = now; // reset the time
+                resetTime = now;
+                resetTimeObject[location] = resetTime;
                 console.log('resetTime was reset, due to below 0 visitors. Measured value was: ' + r + '. New reset time: ' + resetTime);
                 resolve(0);
             }
@@ -98,6 +107,12 @@ const getYearVisitors = (location) => {
         getQuery(query, 'SUM(direction_in)').then(r => resolve(r));
     });
 };
+const getTotalVisitors = (location) => {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT SUM(direction_in) from counterTable WHERE instr(door, "' + location + '") > 0';
+        getQuery(query, 'SUM(direction_in)').then(r => resolve(r));
+    });
+};
 const buildIntervalQuery = (location) => {
     const interval = [{ start: 0, end: 12 }, { start: 12, end: 17 }, { start: 17, end: 24 }];
     const start = new Date();
@@ -105,9 +120,10 @@ const buildIntervalQuery = (location) => {
     // Build query
     let query = [];
     for (const timeslot of interval) {
+        0;
         end.setHours(timeslot.end, 0, 0, 0);
         start.setHours(timeslot.start, 0, 0, 0);
-        query.push("SELECT SUM(direction_in) from counterTable WHERE time > " + start.getTime() + " AND time < " + end.getTime());
+        query.push('SELECT SUM(direction_in) from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + start.getTime() + ' AND time < ' + end.getTime());
     }
     return query;
 };
@@ -119,16 +135,18 @@ const getQuery = (query, output) => {
     });
 };
 const frontPage = (location) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('Frontpage data fetched for: ' + location);
     const out = {
-        firstVisitor: yield getFirstVisitor(location),
-        currentVisitors: yield getCurrentVisitors(location),
-        todayVisitors: yield getTodayVisitors(location),
-        weekVisitors: yield getWeekVisitors(location),
-        monthVisitors: yield getMonthVisitors(location),
-        todayMorning: yield getQuery(buildIntervalQuery(location)[0], 'SUM(direction_in)'),
-        todayAfternoon: yield getQuery(buildIntervalQuery(location)[1], 'SUM(direction_in)'),
-        todayNight: yield getQuery(buildIntervalQuery(location)[2], 'SUM(direction_in)'),
-        yearVisitors: yield getYearVisitors(location)
+        firstVisitor: (yield getFirstVisitor(location)) || 0,
+        todayVisitors: (yield getTodayVisitors(location)) || 0,
+        todayMorning: (yield getQuery(buildIntervalQuery(location)[0], 'SUM(direction_in)')) || 0,
+        todayAfternoon: (yield getQuery(buildIntervalQuery(location)[1], 'SUM(direction_in)')) || 0,
+        todayNight: (yield getQuery(buildIntervalQuery(location)[2], 'SUM(direction_in)')) || 0,
+        weekVisitors: (yield getWeekVisitors(location)) || 0,
+        monthVisitors: (yield getMonthVisitors(location)) || 0,
+        yearVisitors: (yield getYearVisitors(location)) || 0,
+        totalVisitors: (yield getTotalVisitors(location)) || 0,
+        currentVisitors: (yield getCurrentVisitors(location)) || 0,
     };
     return out;
 });

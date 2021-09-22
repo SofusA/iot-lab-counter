@@ -7,13 +7,13 @@ const getFirstVisitor = (location: string) => {
         three.setHours(3, 0, 0, 0);
         const query = 'SELECT time from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + three.getTime() + ' ORDER BY time ASC LIMIT 1'
 
+
         getQuery(query, 'time').then(r => resolve(r))
+
     })
 }
 
-console.log('Reset time inititated')
-let resetTime = new Date();
-resetTime.setHours(3, 0, 0, 0);
+let resetTimeObject = {}
 
 function sameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
@@ -26,19 +26,30 @@ const getCurrentVisitors = (location: string) => {
 
         // Handle the reset timer
         const now = new Date();
+        let resetTime = new Date()
 
-        // Hvis ikke blevet reset i dag og klokken er over 03, reset til i dag klokken 03
+        // If resetTimer exists. Define it
+        if (resetTimeObject[location]) {
+            resetTime = resetTimeObject[location]
+        } else { // Otherwise set to today at 03. Only run once every server reset
+            resetTime.setHours(3, 0, 0, 0)
+            resetTimeObject[location] = resetTime;
+        }
+
+        // If resetTimer has not been reset today, and the time is more than 03, reset to today at 03 and store the timer
         if (!sameDay(now, resetTime) && now.getHours() > 3) {
             resetTime = now
             resetTime.setHours(3, 0, 0, 0);
-            console.log('resetTime reset to: ' + resetTime)
+            resetTimeObject[location] = resetTime;
+            console.log('New day: resetTimer is reset for: ' + location)
         }
 
         const query = 'SELECT SUM(direction_in)-SUM(direction_out) from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + resetTime.getTime()
 
         getQuery(query, 'SUM(direction_in)-SUM(direction_out)').then(r => {
             if (r < 0) {
-                resetTime = now; // reset the time
+                resetTime = now
+                resetTimeObject[location] = resetTime;
                 console.log('resetTime was reset, due to below 0 visitors. Measured value was: ' + r + '. New reset time: ' + resetTime)
                 resolve(0)
             } else {
@@ -96,9 +107,16 @@ const getYearVisitors = (location: string) => {
         let year = new Date().getFullYear();
         const thisYear = new Date(year, 0, 1);
         const nextYear = new Date(year + 1, 0, 1);
-        
+
 
         const query = 'SELECT SUM(direction_in) from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + thisYear.getTime() + ' AND time < ' + nextYear.getTime()
+        getQuery(query, 'SUM(direction_in)').then(r => resolve(r))
+    })
+}
+
+const getTotalVisitors = (location: string) => {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT SUM(direction_in) from counterTable WHERE instr(door, "' + location + '") > 0'
         getQuery(query, 'SUM(direction_in)').then(r => resolve(r))
     })
 }
@@ -112,15 +130,17 @@ const buildIntervalQuery = (location: string) => {
     // Build query
     let query = [];
     for (const timeslot of interval) {
+        0
         end.setHours(timeslot.end, 0, 0, 0);
         start.setHours(timeslot.start, 0, 0, 0);
-        query.push("SELECT SUM(direction_in) from counterTable WHERE time > " + start.getTime() + " AND time < " + end.getTime());
+        query.push('SELECT SUM(direction_in) from counterTable WHERE instr(door, "' + location + '") > 0 AND time > ' + start.getTime() + ' AND time < ' + end.getTime());
     }
 
     return query
 }
 
 const getQuery = (query: string, output: string) => {
+
     return new Promise((resolve, reject) => {
         db.each(query, function (err, rows) {
             resolve(rows[output])
@@ -130,16 +150,18 @@ const getQuery = (query: string, output: string) => {
 
 
 const frontPage = async (location: string) => {
+    console.log('Frontpage data fetched for: ' + location)
     const out = {
-        firstVisitor: await getFirstVisitor(location),
-        currentVisitors: await getCurrentVisitors(location),
-        todayVisitors: await getTodayVisitors(location),
-        weekVisitors: await getWeekVisitors(location),
-        monthVisitors: await getMonthVisitors(location),
-        todayMorning: await getQuery(buildIntervalQuery(location)[0], 'SUM(direction_in)'),
-        todayAfternoon: await getQuery(buildIntervalQuery(location)[1], 'SUM(direction_in)'),
-        todayNight: await getQuery(buildIntervalQuery(location)[2], 'SUM(direction_in)'),
-        yearVisitors: await getYearVisitors(location)
+        firstVisitor: await getFirstVisitor(location) || 0,
+        todayVisitors: await getTodayVisitors(location) || 0,
+        todayMorning: await getQuery(buildIntervalQuery(location)[0], 'SUM(direction_in)') || 0,
+        todayAfternoon: await getQuery(buildIntervalQuery(location)[1], 'SUM(direction_in)') || 0,
+        todayNight: await getQuery(buildIntervalQuery(location)[2], 'SUM(direction_in)') || 0,
+        weekVisitors: await getWeekVisitors(location) || 0,
+        monthVisitors: await getMonthVisitors(location) || 0,
+        yearVisitors: await getYearVisitors(location) || 0,
+        totalVisitors: await getTotalVisitors(location) || 0,
+        currentVisitors: await getCurrentVisitors(location) || 0,
     }
     return out;
 }
