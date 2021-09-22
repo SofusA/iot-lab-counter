@@ -16,7 +16,7 @@ var app = express();
 var httpsServer = https.createServer(credentials, app);
 var httpServer = http.createServer(app);
 
-httpsServer.listen(8443);
+httpsServer.listen(443);
 httpServer.listen(8442);
 
 import { Server, Socket } from "socket.io";
