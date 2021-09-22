@@ -1,0 +1,10 @@
+#!/bin/bash
+pkill -f node
+pkill -f nodejs
+
+sudo certbot renew
+sudo cp /etc/letsencrypt/live/counter.iot-lab.dk/privkey.pem ~/iot-lab-counter/server/dist/certs
+sudo cp /etc/letsencrypt/live/counter.iot-lab.dk/fullchain.pem ~/iot-lab-counter/serverdist/certs
+
+cd ~/iot-lab-counter/server/
+sudo npm run start:production
