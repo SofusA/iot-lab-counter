@@ -26,7 +26,7 @@ let sendOneCount = () => {
         "rule_id": "974c8bc3-c3be-4698-83ae-720c718df09a",
         "rule_name": "null"
     };
-    if (Math.random() < 0.5) {
+    if (Math.random() < 0) {
         count["rule_name"] = "Exit";
     }
     else {
@@ -65,6 +65,6 @@ let sendHeatbeat = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Error");
     });
 });
-setInterval(sendOne, 20000);
+setInterval(sendOne, 5000);
 setInterval(sendHeatbeat, 60000);
 //# sourceMappingURL=app.js.map

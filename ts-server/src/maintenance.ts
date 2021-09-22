@@ -4,7 +4,7 @@ import sqlite3 from 'sqlite3'
 let db = new sqlite3.Database('database.db')
 
 let updateHeartbeat = (input: string) => {
-    const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'] + '")'
+    const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
     db.run(query)
 }
 
@@ -18,7 +18,7 @@ let updateError = (input: object) => {
 }
 
 let updateSensor = (input: object) => {
-    const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'] + '")'
+    const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
     db.run(query)
 }
 

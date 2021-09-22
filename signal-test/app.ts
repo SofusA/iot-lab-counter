@@ -58,5 +58,5 @@ let sendHeatbeat = async () => {
 
 }
 
-setInterval(sendOne, 20000)
+setInterval(sendOne, 5000)
 setInterval(sendHeatbeat, 60000)
