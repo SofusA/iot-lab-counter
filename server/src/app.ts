@@ -14,10 +14,10 @@ var credentials = {
 };
 var app = express();
 var httpsServer = https.createServer(credentials, app);
-var httpServer = http.createServer(app);
+// var httpServer = http.createServer(app);
 
 httpsServer.listen(443);
-httpServer.listen(8442);
+// httpServer.listen(8442);
 
 import { Server, Socket } from "socket.io";
 const io = new Server(httpsServer)
@@ -28,7 +28,7 @@ const io = new Server(httpsServer)
 // const io = require('socket.io')(http);
 // const port = process.env.PORT || 3000;
 
-app.use(helmet());
+// app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'public')))

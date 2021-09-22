@@ -18,7 +18,7 @@ var credentials = {
 var app = (0, express_1.default)();
 var httpsServer = https_1.default.createServer(credentials, app);
 var httpServer = http_1.default.createServer(app);
-httpsServer.listen(8443);
+httpsServer.listen(443);
 httpServer.listen(8442);
 const socket_io_1 = require("socket.io");
 const io = new socket_io_1.Server(httpsServer);
