@@ -14,10 +14,20 @@ var credentials = {
 };
 var app = express();
 var httpsServer = https.createServer(credentials, app);
-// var httpServer = http.createServer(app);
+var httpServer = http.createServer(app);
 
 httpsServer.listen(443);
-// httpServer.listen(8442);
+httpServer.listen(80);
+
+// Redirect to https
+function requireHTTPS(req, res, next) {
+  // The 'x-forwarded-proto' check is for Heroku
+  if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
+    return res.redirect('https://' + req.get('host') + req.url);
+  }
+  next();
+}
+app.use(requireHTTPS);
 
 import { Server, Socket } from "socket.io";
 const io = new Server(httpsServer)

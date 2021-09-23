@@ -9,15 +9,25 @@ const path_1 = __importDefault(require("path"));
 // Https stuff
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
+const http_1 = __importDefault(require("http"));
 var credentials = {
     key: fs_1.default.readFileSync(__dirname + '/certs/privkey.pem', 'utf8'),
     cert: fs_1.default.readFileSync(__dirname + '/certs/fullchain.pem', 'utf8')
 };
 var app = (0, express_1.default)();
 var httpsServer = https_1.default.createServer(credentials, app);
-// var httpServer = http.createServer(app);
+var httpServer = http_1.default.createServer(app);
 httpsServer.listen(443);
-// httpServer.listen(8442);
+httpServer.listen(80);
+// Redirect to https
+function requireHTTPS(req, res, next) {
+    // The 'x-forwarded-proto' check is for Heroku
+    if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
+        return res.redirect('https://' + req.get('host') + req.url);
+    }
+    next();
+}
+app.use(requireHTTPS);
 const socket_io_1 = require("socket.io");
 const io = new socket_io_1.Server(httpsServer);
 // const app = express();
