@@ -33,15 +33,15 @@ let sendOneCount = () => {
         count["rule_name"] = "Enter";
     }
     if (Math.random() < 0.5) {
-        count["channel_name"] = "novonordisk;loc;door1";
+        count["channel_name"] = "test;loc;door1";
     }
     else {
-        count["channel_name"] = "novonordisk;loc;door2";
+        count["channel_name"] = "test;loc;door2";
     }
     return count;
 };
 let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
-    axios_1.default.post('http://127.0.0.1:8442/count', sendOneCount())
+    axios_1.default.post('https://counter.iot-lab.dk/count', sendOneCount())
         .then(function (response) {
         console.log("Success");
     })
@@ -52,12 +52,12 @@ let sendOne = () => __awaiter(void 0, void 0, void 0, function* () {
 let sendHeatbeat = () => __awaiter(void 0, void 0, void 0, function* () {
     let sensor;
     if (Math.random() < 0.5) {
-        sensor = "novonordisk;loc;door1";
+        sensor = "test;loc;door1";
     }
     else {
-        sensor = "novonordisk;loc;door2";
+        sensor = "test;loc;door2";
     }
-    axios_1.default.post('http://127.0.0.1:8442/heartbeat', { door: sensor })
+    axios_1.default.post('https://counter.iot-lab.dk/heartbeat', { door: sensor })
         .then(function (response) {
         console.log("Success");
     })

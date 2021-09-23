@@ -21,9 +21,9 @@ let sendOneCount = (): object => {
     }
 
     if (Math.random() < 0.5) {
-        count["channel_name"] = "novonordisk;loc;door1"
+        count["channel_name"] = "test;loc;door1"
     } else {
-        count["channel_name"] = "novonordisk;loc;door2"
+        count["channel_name"] = "test;loc;door2"
     }
 
 
@@ -31,7 +31,7 @@ let sendOneCount = (): object => {
 };
 
 let sendOne = async () => {
-    axios.post('http://127.0.0.1:8442/count', sendOneCount())
+    axios.post('https://counter.iot-lab.dk/count', sendOneCount())
         .then(function (response) {
             console.log("Success");
         })
@@ -43,12 +43,12 @@ let sendOne = async () => {
 let sendHeatbeat = async () => {
     let sensor:string
     if (Math.random() < 0.5) {
-        sensor = "novonordisk;loc;door1"
+        sensor = "test;loc;door1"
     } else {
-        sensor = "novonordisk;loc;door2"
+        sensor = "test;loc;door2"
     }
 
-    axios.post('http://127.0.0.1:8442/heartbeat', {door:sensor})
+    axios.post('https://counter.iot-lab.dk/heartbeat', {door:sensor})
     .then(function (response) {
         console.log("Success");
     })
