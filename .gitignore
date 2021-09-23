@@ -6,6 +6,6 @@ server/.*.backup
 **/.DS_Store
 .vscode
 server/certs/*.pem
-
+server/nohup.out
 node_modules
 .cache

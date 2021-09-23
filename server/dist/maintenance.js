@@ -17,8 +17,11 @@ let errorLog = {};
 const sqlite3_1 = __importDefault(require("sqlite3"));
 let db = new sqlite3_1.default.Database('database.db');
 let updateHeartbeat = (input) => {
+    console.log(input);
+    let door = input['door'].replace(/['"]+/g, '');
+    door = door.split(';')[0] + ';' + door.split(';')[1];
     // const query = 'UPDATE sensorList SET heartbeat = ' + new Date().getTime() + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
-    const query = 'REPLACE INTO sensorList (sensor, heartbeat, lastMsg) VALUES ("' + input['door'].replace(/['"]+/g, '') + '", ' + new Date().getTime() + ', (SELECT lastMsg FROM sensorList WHERE sensor = "' + input['door'].replace(/['"]+/g, '') + '"))';
+    const query = 'REPLACE INTO sensorList (sensor, heartbeat, lastMsg) VALUES ("' + door + '", ' + new Date().getTime() + ', (SELECT lastMsg FROM sensorList WHERE sensor = "' + door + '"))';
     console.log('New heartbeat: ' + input['door']);
     db.run(query);
 };
@@ -33,8 +36,10 @@ let updateError = (input) => {
 };
 exports.updateError = updateError;
 let updateSensor = (input) => {
+    let door = input['door'].replace(/['"]+/g, '');
+    door = door.split(';')[0] + ';' + door.split(';')[1];
     // const query = 'UPDATE sensorList set lastMsg = ' + input['time'] + ' WHERE instr(sensor, "' + input['door'].replace(/['"]+/g, '') + '")'
-    const query = 'REPLACE INTO sensorList (sensor, lastMsg, heartbeat) VALUES ("' + input['door'].replace(/['"]+/g, '') + '", ' + new Date().getTime() + ', (SELECT heartbeat FROM sensorList WHERE sensor = "' + input['door'].replace(/['"]+/g, '') + '"))';
+    const query = 'REPLACE INTO sensorList (sensor, lastMsg, heartbeat) VALUES ("' + door + '", ' + new Date().getTime() + ', (SELECT heartbeat FROM sensorList WHERE sensor = "' + door + '"))';
     db.run(query);
 };
 exports.updateSensor = updateSensor;
